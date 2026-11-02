@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScanX – Scanner, sauvegarder et partager vos documents</title>
+<meta name="description" content="ScanX : application Android pour scanner vos documents papier, les enregistrer en PDF ou JPG et les partager.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.png">
+<meta property="og:title" content="ScanX">
+<meta property="og:description" content="Scanner, sauvegarder et partager vos documents.">
+<meta property="og:image" content="assets/logo.png">
+<style>
+  :root {
+    --primary: #2563EB;
+    --primary-ink: #ffffff;
+    --ink: #0B1220;
+    --muted: #5B6472;
+    --bg: #F5F7FB;
+    --surface: #ffffff;
+    --line: #E1E6EF;
+    --soft: #E8EFFD;
+    --shadow: 0 10px 30px rgba(11, 18, 32, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5B8DEF;
+      --primary-ink: #0B1220;
+      --ink: #EEF2FA;
+      --muted: #A3ADBF;
+      --bg: #0C111B;
+      --surface: #151C29;
+      --line: #263044;
+      --soft: #1A2742;
+      --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--primary); }
+  .wrap { width: min(1080px, 100% - 32px); margin-inline: auto; }
+
+  header.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+  .brand img { width: 36px; height: 36px; border-radius: 9px; }
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+  .lang button { all: unset; cursor: pointer; padding: 6px 14px; font-size: .85rem; font-weight: 600; color: var(--muted); }
+  .lang button[aria-pressed="true"] { background: var(--primary); color: var(--primary-ink); }
+  .lang button:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+  .hero { padding: 56px 0 24px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+  h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.1; margin: 0 0 16px; letter-spacing: -.02em; }
+  .lead { font-size: 1.15rem; color: var(--muted); margin: 0 0 28px; max-width: 34ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 14px; font-weight: 700; text-decoration: none; border: 1px solid transparent; }
+  .btn.primary { background: var(--primary); color: var(--primary-ink); box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent); }
+  .btn.ghost { border-color: var(--line); color: var(--ink); background: var(--surface); }
+  .btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--primary) 50%, transparent); outline-offset: 2px; }
+  .version { margin-top: 14px; font-size: .9rem; color: var(--muted); }
+
+  .phone { background: #0B1220; border-radius: 34px; padding: 9px; box-shadow: var(--shadow); width: 100%; }
+  .phone img { display: block; width: 100%; height: auto; border-radius: 26px; background: #fff; }
+  .hero .phone { max-width: 290px; margin-inline: auto; transform: rotate(2deg); }
+
+  section { padding: 56px 0; }
+  h2 { font-size: clamp(1.5rem, 3.5vw, 2rem); margin: 0 0 8px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin: 0 0 32px; }
+
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
+  .card .ico { width: 42px; height: 42px; border-radius: 12px; background: var(--soft); color: var(--primary); display: grid; place-items: center; margin-bottom: 14px; }
+  .card svg { width: 22px; height: 22px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+  .gallery { display: flex; gap: 20px; overflow-x: auto; padding: 8px 4px 24px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .gallery figure { margin: 0; flex: 0 0 min(240px, 62vw); scroll-snap-align: start; }
+  .gallery figcaption { text-align: center; margin-top: 12px; font-size: .9rem; color: var(--muted); font-weight: 600; }
+
+  .steps { counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; padding: 0; list-style: none; margin: 0; }
+  .steps li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
+  .steps li::before { content: counter(s); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-ink); font-weight: 700; margin-bottom: 12px; }
+  .steps b { display: block; margin-bottom: 4px; }
+  .steps span { color: var(--muted); font-size: .95rem; }
+
+  .install { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 24px; }
+  .install ol { margin: 12px 0 0; padding-left: 20px; }
+  .install li { margin: 6px 0; }
+
+  footer { padding: 32px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+
+  @media (max-width: 800px) {
+    .hero .wrap { grid-template-columns: 1fr; }
+    .hero .phone { max-width: 240px; transform: none; }
+    .hero { padding-top: 32px; }
+    .lead { max-width: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/logo.png" alt="" width="36" height="36"><span>ScanX</span></a>
+    <div class="lang" role="group" aria-label="Langue / Language">
+      <button type="button" data-set-lang="fr" aria-pressed="true">FR</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1 data-i18n="tagline">Scanner, sauvegarder et partager vos documents</h1>
+        <p class="lead" data-i18n="lead">Numérisez vos papiers avec votre téléphone : les bords sont détectés et redressés automatiquement. Enregistrez en PDF ou JPG et envoyez en un geste.</p>
+        <div class="actions">
+          <a class="btn primary" id="download" href="https://github.com/karimbel/scanX-showcase/releases/latest">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 20h16"/></svg>
+            <span data-i18n="download">Télécharger pour Android</span>
+          </a>
+          <a class="btn ghost" href="#install" data-i18n="howto">Comment l’installer</a>
+        </div>
+        <p class="version" id="version" data-i18n="versionFallback">Application Android (APK), gratuite.</p>
+      </div>
+      <div class="phone"><img data-shot="02-relecture" alt="" width="390" height="844"></div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2 data-i18n="featuresTitle">L’essentiel, sans détour</h2>
+      <p class="sub" data-i18n="featuresSub">Un scanner simple, rapide et qui respecte vos documents.</p>
+      <div class="features">
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/></svg></div><h3 data-i18n="f1t">Détection automatique</h3><p data-i18n="f1d">Bords détectés, page redressée et recadrée avec le scanner de Google (ML Kit).</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5"/></svg></div><h3 data-i18n="f2t">Multi-pages</h3><p data-i18n="f2d">Ajoutez des pages, réorganisez-les, pivotez, recadrez ou supprimez-les avant d’enregistrer.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5zM14 3v5h5"/></svg></div><h3 data-i18n="f3t">PDF ou JPG</h3><p data-i18n="f3d">Enregistrez où vous voulez sur le téléphone, ou partagez par e-mail et SMS.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div><h3 data-i18n="f4t">Vos documents restent chez vous</h3><p data-i18n="f4d">Stockés uniquement sur votre appareil. Aucun compte, aucun envoi vers un serveur.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg></div><h3 data-i18n="f5t">Français et anglais</h3><p data-i18n="f5d">La langue suit celle de votre téléphone, avec un choix manuel dans les réglages.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div><h3 data-i18n="f6t">Bibliothèque et recherche</h3><p data-i18n="f6d">Retrouvez vos scans par titre, renommez-les, supprimez ce dont vous n’avez plus besoin.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens">
+    <div class="wrap">
+      <h2 data-i18n="screensTitle">En images</h2>
+      <p class="sub" data-i18n="screensSub">Du scan à l’envoi, en quelques écrans.</p>
+      <div class="gallery" tabindex="0" aria-label="Captures d’écran">
+        <figure><div class="phone"><img data-shot="01-accueil" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s1">Scanner</figcaption></figure>
+        <figure><div class="phone"><img data-shot="02-relecture" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s2">Vérification</figcaption></figure>
+        <figure><div class="phone"><img data-shot="03-document" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s3">Document</figcaption></figure>
+        <figure><div class="phone"><img data-shot="04-bibliotheque" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s4">Bibliothèque</figcaption></figure>
+        <figure><div class="phone"><img data-shot="05-reglages" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s5">Réglages</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <h2 data-i18n="howTitle">Comment ça marche</h2>
+      <p class="sub" data-i18n="howSub">Trois gestes.</p>
+      <ol class="steps">
+        <li><b data-i18n="h1t">Scannez</b><span data-i18n="h1d">Appuyez sur Scanner et cadrez votre document : ScanX le détecte tout seul.</span></li>
+        <li><b data-i18n="h2t">Vérifiez</b><span data-i18n="h2d">Donnez un titre, ajoutez des pages, réorganisez, puis enregistrez.</span></li>
+        <li><b data-i18n="h3t">Partagez</b><span data-i18n="h3d">Exportez en PDF ou JPG, ou envoyez directement par e-mail ou SMS.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <div class="install">
+        <h2 data-i18n="installTitle">Installer ScanX</h2>
+        <p class="sub" style="margin-bottom:0" data-i18n="installSub">ScanX est distribuée sous forme de fichier APK, hors Google Play.</p>
+        <ol>
+          <li data-i18n="i1">Sur votre téléphone Android, ouvrez le bouton « Télécharger » ci-dessus et téléchargez le fichier APK.</li>
+          <li data-i18n="i2">Ouvrez le fichier. Si Android le demande, autorisez l’installation d’applications depuis cette source.</li>
+          <li data-i18n="i3">Lancez ScanX. Pour mettre à jour, téléchargez la dernière version et installez-la par-dessus : vos documents sont conservés.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span data-i18n="footer">ScanX – application Android. Scanner, sauvegarder et partager vos documents.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var T = {
+    fr: {
+      tagline: 'Scanner, sauvegarder et partager vos documents',
+      lead: 'Numérisez vos papiers avec votre téléphone : les bords sont détectés et redressés automatiquement. Enregistrez en PDF ou JPG et envoyez en un geste.',
+      download: 'Télécharger pour Android', howto: 'Comment l’installer',
+      versionFallback: 'Application Android (APK), gratuite.', versionPrefix: 'Version',
+      featuresTitle: 'L’essentiel, sans détour', featuresSub: 'Un scanner simple, rapide et qui respecte vos documents.',
+      f1t: 'Détection automatique', f1d: 'Bords détectés, page redressée et recadrée avec le scanner de Google (ML Kit).',
+      f2t: 'Multi-pages', f2d: 'Ajoutez des pages, réorganisez-les, pivotez, recadrez ou supprimez-les avant d’enregistrer.',
+      f3t: 'PDF ou JPG', f3d: 'Enregistrez où vous voulez sur le téléphone, ou partagez par e-mail et SMS.',
+      f4t: 'Vos documents restent chez vous', f4d: 'Stockés uniquement sur votre appareil. Aucun compte, aucun envoi vers un serveur.',
+      f5t: 'Français et anglais', f5d: 'La langue suit celle de votre téléphone, avec un choix manuel dans les réglages.',
+      f6t: 'Bibliothèque et recherche', f6d: 'Retrouvez vos scans par titre, renommez-les, supprimez ce dont vous n’avez plus besoin.',
+      screensTitle: 'En images', screensSub: 'Du scan à l’envoi, en quelques écrans.',
+      s1: 'Scanner', s2: 'Vérification', s3: 'Document', s4: 'Bibliothèque', s5: 'Réglages',
+      howTitle: 'Comment ça marche', howSub: 'Trois gestes.',
+      h1t: 'Scannez', h1d: 'Appuyez sur Scanner et cadrez votre document : ScanX le détecte tout seul.',
+      h2t: 'Vérifiez', h2d: 'Donnez un titre, ajoutez des pages, réorganisez, puis enregistrez.',
+      h3t: 'Partagez', h3d: 'Exportez en PDF ou JPG, ou envoyez directement par e-mail ou SMS.',
+      installTitle: 'Installer ScanX', installSub: 'ScanX est distribuée sous forme de fichier APK, hors Google Play.',
+      i1: 'Sur votre téléphone Android, ouvrez le bouton « Télécharger » ci-dessus et téléchargez le fichier APK.',
+      i2: 'Ouvrez le fichier. Si Android le demande, autorisez l’installation d’applications depuis cette source.',
+      i3: 'Lancez ScanX. Pour mettre à jour, téléchargez la dernière version et installez-la par-dessus : vos documents sont conservés.',
+      footer: 'ScanX – application Android. Scanner, sauvegarder et partager vos documents.',
+      alt: 'Capture d’écran de ScanX'
+    },
+    en: {
+      tagline: 'Scan, save and share your documents',
+      lead: 'Digitize your paperwork with your phone: edges are detected and straightened automatically. Save as PDF or JPG and share in one tap.',
+      download: 'Download for Android', howto: 'How to install',
+      versionFallback: 'Android app (APK), free.', versionPrefix: 'Version',
+      featuresTitle: 'The essentials, no fuss', featuresSub: 'A simple, fast scanner that respects your documents.',
+      f1t: 'Automatic detection', f1d: 'Edges detected, page straightened and cropped with Google’s scanner (ML Kit).',
+      f2t: 'Multi-page', f2d: 'Add pages, reorder, rotate, crop or delete them before saving.',
+      f3t: 'PDF or JPG', f3d: 'Save wherever you like on your phone, or share by email and SMS.',
+      f4t: 'Your documents stay with you', f4d: 'Stored only on your device. No account, nothing sent to a server.',
+      f5t: 'French and English', f5d: 'The language follows your phone, with a manual choice in settings.',
+      f6t: 'Library and search', f6d: 'Find your scans by title, rename them, delete what you no longer need.',
+      screensTitle: 'Screenshots', screensSub: 'From scan to share, in a few screens.',
+      s1: 'Scan', s2: 'Review', s3: 'Document', s4: 'Library', s5: 'Settings',
+      howTitle: 'How it works', howSub: 'Three steps.',
+      h1t: 'Scan', h1d: 'Tap Scan and frame your document: ScanX detects it on its own.',
+      h2t: 'Review', h2d: 'Give it a title, add pages, reorder, then save.',
+      h3t: 'Share', h3d: 'Export as PDF or JPG, or send directly by email or SMS.',
+      installTitle: 'Install ScanX', installSub: 'ScanX is distributed as an APK file, outside Google Play.',
+      i1: 'On your Android phone, tap the “Download” button above and download the APK file.',
+      i2: 'Open the file. If Android asks, allow installing apps from this source.',
+      i3: 'Launch ScanX. To update, download the latest version and install it over the old one: your documents are kept.',
+      footer: 'ScanX – Android app. Scan, save and share your documents.',
+      alt: 'ScanX screenshot'
+    }
+  };
+
+  var lang = 'fr', versionText = null;
+  try { var saved = localStorage.getItem('scanx-site-lang'); if (saved === 'fr' || saved === 'en') lang = saved; else lang = /^fr/i.test(navigator.language || '') ? 'fr' : 'en'; }
+  catch (e) { lang = /^fr/i.test(navigator.language || '') ? 'fr' : 'en'; }
+
+  function apply() {
+    var d = T[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) { var v = d[el.getAttribute('data-i18n')]; if (v) el.textContent = v; });
+    document.querySelectorAll('img[data-shot]').forEach(function (img) {
+      img.src = 'assets/screens/' + lang + '/' + img.getAttribute('data-shot') + '.png';
+      img.alt = d.alt;
+    });
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === lang)); });
+    document.title = 'ScanX – ' + d.tagline;
+    if (versionText) document.getElementById('version').textContent = d.versionPrefix + ' ' + versionText;
+  }
+
+  document.querySelectorAll('[data-set-lang]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      lang = b.getAttribute('data-set-lang');
+      try { localStorage.setItem('scanx-site-lang', lang); } catch (e) {}
+      apply();
+    });
+  });
+  apply();
+
+  // Affiche la dernière version et pointe le bouton directement vers l'APK.
+  fetch('https://api.github.com/repos/karimbel/scanX-showcase/releases/latest', { headers: { Accept: 'application/vnd.github+json' } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rel) {
+      if (!rel) return;
+      versionText = String(rel.name || rel.tag_name || '').replace(/^ScanX\s*/i, '').replace(/^v/i, '');
+      var apk = (rel.assets || []).filter(function (a) { return /\.apk$/i.test(a.name); })[0];
+      if (apk) document.getElementById('download').href = apk.browser_download_url;
+      apply();
+    })
+    .catch(function () {});
+})();
+</script>
+</body>
+</html>
