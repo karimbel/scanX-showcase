@@ -82,9 +82,21 @@
   .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
   .card p { margin: 0; color: var(--muted); font-size: .95rem; }
 
-  .gallery { display: flex; gap: 20px; overflow-x: auto; padding: 8px 4px 24px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
-  .gallery figure { margin: 0; flex: 0 0 min(240px, 62vw); scroll-snap-align: start; }
-  .gallery figcaption { text-align: center; margin-top: 12px; font-size: .9rem; color: var(--muted); font-weight: 600; }
+  .slider { display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; gap: 8px; max-width: 520px; margin: 0 auto; outline: none; }
+  .slides { display: grid; touch-action: pan-y; }
+  .slide { grid-area: 1 / 1; margin: 0; text-align: center; opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s linear .45s; }
+  .slide.is-active { opacity: 1; visibility: visible; transition: opacity .45s ease; }
+  .slide .phone { width: min(260px, 100%); margin-inline: auto; }
+  .slide figcaption { margin-top: 14px; font-size: .95rem; color: var(--muted); font-weight: 600; }
+  .nav { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; box-shadow: var(--shadow); transition: transform .15s ease; }
+  .nav:hover { transform: scale(1.06); }
+  .nav:active { transform: scale(.94); }
+  .nav:focus-visible, .slider:focus-visible .slides { outline: 3px solid color-mix(in srgb, var(--primary) 50%, transparent); outline-offset: 3px; }
+  .nav svg { width: 22px; height: 22px; }
+  .dots { display: flex; gap: 8px; justify-content: center; margin-top: 18px; }
+  .dots button { width: 9px; height: 9px; padding: 0; border-radius: 50%; border: 0; background: var(--line); cursor: pointer; transition: background .2s, transform .2s; }
+  .dots button[aria-current="true"] { background: var(--primary); transform: scale(1.3); }
+  .dots button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 
   .steps { counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; padding: 0; list-style: none; margin: 0; }
   .steps li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; }
@@ -93,8 +105,13 @@
   .steps span { color: var(--muted); font-size: .95rem; }
 
   .install { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 24px; }
-  .install ol { margin: 12px 0 0; padding-left: 20px; }
-  .install li { margin: 6px 0; }
+  .isteps { counter-reset: i; list-style: none; margin: 20px 0 0; padding: 0; }
+  .isteps li { counter-increment: i; display: grid; grid-template-columns: 36px 1fr; column-gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .isteps li::before { content: counter(i); grid-row: 1 / span 2; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: var(--primary-ink); font-weight: 700; }
+  .isteps b { display: block; font-size: 1.02rem; }
+  .isteps span { color: var(--muted); font-size: .95rem; }
+  .install .actions { margin-top: 22px; }
+  .note { margin: 16px 0 0; color: var(--muted); font-size: .92rem; }
 
   footer { padding: 32px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 
@@ -104,7 +121,7 @@
     .hero { padding-top: 32px; }
     .lead { max-width: none; }
   }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .slide, .slide.is-active { transition: none; } }
 </style>
 </head>
 <body>
@@ -156,13 +173,18 @@
     <div class="wrap">
       <h2 data-i18n="screensTitle">En images</h2>
       <p class="sub" data-i18n="screensSub">Du scan à l’envoi, en quelques écrans.</p>
-      <div class="gallery" tabindex="0" aria-label="Captures d’écran">
-        <figure><div class="phone"><img data-shot="01-accueil" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s1">Scanner</figcaption></figure>
-        <figure><div class="phone"><img data-shot="02-relecture" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s2">Vérification</figcaption></figure>
-        <figure><div class="phone"><img data-shot="03-document" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s3">Document</figcaption></figure>
-        <figure><div class="phone"><img data-shot="04-bibliotheque" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s4">Bibliothèque</figcaption></figure>
-        <figure><div class="phone"><img data-shot="05-reglages" alt="" loading="lazy" width="390" height="844"></div><figcaption data-i18n="s5">Réglages</figcaption></figure>
+      <div class="slider" id="slider" tabindex="0" role="group" aria-roledescription="carousel" data-i18n-aria="shotsLabel" aria-label="Captures d’écran">
+        <button class="nav" id="prev" type="button" data-i18n-aria="prev" aria-label="Précédent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="slides" id="slides" aria-live="polite">
+          <figure class="slide is-active" aria-roledescription="slide"><div class="phone"><img data-shot="01-accueil" alt="" width="390" height="844"></div><figcaption data-i18n="s1">Scanner</figcaption></figure>
+          <figure class="slide" aria-roledescription="slide"><div class="phone"><img data-shot="02-relecture" alt="" width="390" height="844"></div><figcaption data-i18n="s2">Vérification</figcaption></figure>
+          <figure class="slide" aria-roledescription="slide"><div class="phone"><img data-shot="03-document" alt="" width="390" height="844"></div><figcaption data-i18n="s3">Document</figcaption></figure>
+          <figure class="slide" aria-roledescription="slide"><div class="phone"><img data-shot="04-bibliotheque" alt="" width="390" height="844"></div><figcaption data-i18n="s4">Bibliothèque</figcaption></figure>
+          <figure class="slide" aria-roledescription="slide"><div class="phone"><img data-shot="05-reglages" alt="" width="390" height="844"></div><figcaption data-i18n="s5">Réglages</figcaption></figure>
+        </div>
+        <button class="nav" id="next" type="button" data-i18n-aria="next" aria-label="Suivant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
+      <div class="dots" id="dots"></div>
     </div>
   </section>
 
@@ -183,11 +205,14 @@
       <div class="install">
         <h2 data-i18n="installTitle">Installer ScanX</h2>
         <p class="sub" style="margin-bottom:0" data-i18n="installSub">ScanX est distribuée sous forme de fichier APK, hors Google Play.</p>
-        <ol>
-          <li data-i18n="i1">Sur votre téléphone Android, ouvrez le bouton « Télécharger » ci-dessus et téléchargez le fichier APK.</li>
-          <li data-i18n="i2">Ouvrez le fichier. Si Android le demande, autorisez l’installation d’applications depuis cette source.</li>
-          <li data-i18n="i3">Lancez ScanX. Pour mettre à jour, téléchargez la dernière version et installez-la par-dessus : vos documents sont conservés.</li>
+        <ol class="isteps">
+          <li><b data-i18n="i1t"></b><span data-i18n="i1d"></span></li>
+          <li><b data-i18n="i2t"></b><span data-i18n="i2d"></span></li>
+          <li><b data-i18n="i3t"></b><span data-i18n="i3d"></span></li>
+          <li><b data-i18n="i4t"></b><span data-i18n="i4d"></span></li>
         </ol>
+        <div class="actions"><a class="btn primary" id="dlInstall" href="https://github.com/karimbel/scanX-showcase/releases/latest" data-i18n="download">Télécharger pour Android</a></div>
+        <p class="note" data-i18n="updNote"></p>
       </div>
     </div>
   </section>
@@ -203,6 +228,12 @@
 (function () {
   var T = {
     fr: {
+      i1t: 'Téléchargez l’application', i1d: 'Appuyez sur « Télécharger pour Android » depuis votre téléphone Android.',
+      i2t: 'Ouvrez le fichier téléchargé', i2d: 'Quand le téléchargement est terminé, ouvrez le fichier APK depuis la notification ou votre dossier Téléchargements.',
+      i3t: 'Autorisez l’installation si Android le demande', i3d: 'Sur Android 8.0 et versions ultérieures, ouvrez « Installer des applications inconnues » et autorisez le navigateur utilisé pour le téléchargement. Sur Android 7.1.1 et versions antérieures, activez « Sources inconnues » dans Paramètres > Sécurité.',
+      i4t: 'Installez, puis ouvrez ScanX', i4d: 'Appuyez sur « Installer », puis sur « Ouvrir » pour commencer à scanner.',
+      updNote: 'Pour mettre à jour, installez la dernière version par-dessus l’ancienne : vos documents sont conservés.',
+      prev: 'Précédent', next: 'Suivant', shotsLabel: 'Captures d’écran',
       tagline: 'Scanner, sauvegarder et partager vos documents',
       lead: 'Numérisez vos papiers avec votre téléphone : les bords sont détectés et redressés automatiquement. Enregistrez en PDF ou JPG et envoyez en un geste.',
       download: 'Télécharger pour Android', howto: 'Comment l’installer',
@@ -221,13 +252,16 @@
       h2t: 'Vérifiez', h2d: 'Donnez un titre, ajoutez des pages, réorganisez, puis enregistrez.',
       h3t: 'Partagez', h3d: 'Exportez en PDF ou JPG, ou envoyez directement par e-mail ou SMS.',
       installTitle: 'Installer ScanX', installSub: 'ScanX est distribuée sous forme de fichier APK, hors Google Play.',
-      i1: 'Sur votre téléphone Android, ouvrez le bouton « Télécharger » ci-dessus et téléchargez le fichier APK.',
-      i2: 'Ouvrez le fichier. Si Android le demande, autorisez l’installation d’applications depuis cette source.',
-      i3: 'Lancez ScanX. Pour mettre à jour, téléchargez la dernière version et installez-la par-dessus : vos documents sont conservés.',
       footer: 'ScanX – application Android. Scanner, sauvegarder et partager vos documents.',
       alt: 'Capture d’écran de ScanX'
     },
     en: {
+      i1t: 'Download the app', i1d: 'Tap “Download for Android” from your Android phone.',
+      i2t: 'Open the downloaded file', i2d: 'When the download is complete, open the APK file from the notification or your Downloads folder.',
+      i3t: 'Allow the installation if Android asks', i3d: 'On Android 8.0 and later, open “Install unknown apps” and allow the browser you used for the download. On Android 7.1.1 and earlier, turn on “Unknown sources” in Settings > Security.',
+      i4t: 'Install, then open ScanX', i4d: 'Tap “Install”, then “Open” to start scanning.',
+      updNote: 'To update, install the latest version over the old one: your documents are kept.',
+      prev: 'Previous', next: 'Next', shotsLabel: 'Screenshots',
       tagline: 'Scan, save and share your documents',
       lead: 'Digitize your paperwork with your phone: edges are detected and straightened automatically. Save as PDF or JPG and share in one tap.',
       download: 'Download for Android', howto: 'How to install',
@@ -246,9 +280,6 @@
       h2t: 'Review', h2d: 'Give it a title, add pages, reorder, then save.',
       h3t: 'Share', h3d: 'Export as PDF or JPG, or send directly by email or SMS.',
       installTitle: 'Install ScanX', installSub: 'ScanX is distributed as an APK file, outside Google Play.',
-      i1: 'On your Android phone, tap the “Download” button above and download the APK file.',
-      i2: 'Open the file. If Android asks, allow installing apps from this source.',
-      i3: 'Launch ScanX. To update, download the latest version and install it over the old one: your documents are kept.',
       footer: 'ScanX – Android app. Scan, save and share your documents.',
       alt: 'ScanX screenshot'
     }
@@ -262,6 +293,7 @@
     var d = T[lang];
     document.documentElement.lang = lang;
     document.querySelectorAll('[data-i18n]').forEach(function (el) { var v = d[el.getAttribute('data-i18n')]; if (v) el.textContent = v; });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (el) { var v = d[el.getAttribute('data-i18n-aria')]; if (v) el.setAttribute('aria-label', v); });
     document.querySelectorAll('img[data-shot]').forEach(function (img) {
       img.src = 'assets/screens/' + lang + '/' + img.getAttribute('data-shot') + '.png';
       img.alt = d.alt;
@@ -280,6 +312,36 @@
   });
   apply();
 
+  // Carrousel : une capture à la fois, fondu, flèches, points, clavier et balayage.
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll('#slides .slide'));
+    var dots = document.getElementById('dots'), cur = 0;
+    slides.forEach(function (_, i) {
+      var b = document.createElement('button'); b.type = 'button';
+      b.addEventListener('click', function () { go(i); });
+      dots.appendChild(b);
+    });
+    function go(i) {
+      cur = (i + slides.length) % slides.length;
+      slides.forEach(function (s, k) { s.classList.toggle('is-active', k === cur); s.setAttribute('aria-hidden', String(k !== cur)); });
+      Array.prototype.forEach.call(dots.children, function (b, k) { b.setAttribute('aria-current', String(k === cur)); b.setAttribute('aria-label', (k + 1) + ' / ' + slides.length); });
+    }
+    document.getElementById('prev').addEventListener('click', function () { go(cur - 1); });
+    document.getElementById('next').addEventListener('click', function () { go(cur + 1); });
+    document.getElementById('slider').addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { go(cur - 1); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { go(cur + 1); e.preventDefault(); }
+    });
+    var x0 = null, box = document.getElementById('slides');
+    box.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener('touchend', function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1));
+    });
+    go(0);
+  })();
+
   // Affiche la dernière version et pointe le bouton directement vers l'APK.
   fetch('https://api.github.com/repos/karimbel/scanX-showcase/releases/latest', { headers: { Accept: 'application/vnd.github+json' } })
     .then(function (r) { return r.ok ? r.json() : null; })
@@ -287,7 +349,7 @@
       if (!rel) return;
       versionText = String(rel.name || rel.tag_name || '').replace(/^ScanX\s*/i, '').replace(/^v/i, '');
       var apk = (rel.assets || []).filter(function (a) { return /\.apk$/i.test(a.name); })[0];
-      if (apk) document.getElementById('download').href = apk.browser_download_url;
+      if (apk) ['download', 'dlInstall'].forEach(function (id) { var a = document.getElementById(id); if (a) a.href = apk.browser_download_url; });
       apply();
     })
     .catch(function () {});
