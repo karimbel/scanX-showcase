@@ -8,7 +8,7 @@
 <em>Scan, save and share your documents</em></p>
 
 <p align="center">
-  <a href="https://karimbel.github.io/scanX-showcase/downloads/scanx-v1.1.3.apk"><b>Télécharger l'APK / Download the APK</b></a>
+  <a href="https://github.com/karimbel/scanX-showcase/releases/latest/download/scanx.apk"><b>Télécharger l'APK / Download the APK</b></a>
   ·
   <a href="https://karimbel.github.io/scanX-showcase/">Site web / Website</a>
 </p>
@@ -34,7 +34,7 @@ ScanX est une application Android pour numériser vos documents papier avec le t
 
 ### Installation
 
-1. Sur votre téléphone Android, téléchargez la [dernière version](https://karimbel.github.io/scanX-showcase/downloads/scanx-v1.1.3.apk) (fichier `.apk`).
+1. Sur votre téléphone Android, téléchargez la [dernière version](https://github.com/karimbel/scanX-showcase/releases/latest/download/scanx.apk) (fichier `.apk`).
 2. Ouvrez le fichier. Si Android le demande, autorisez l'installation d'applications depuis cette source.
 3. Lancez ScanX.
 
@@ -63,7 +63,7 @@ ScanX is an Android app that digitizes paper documents with your phone, saves th
 
 ### Installation
 
-1. On your Android phone, download the [latest version](https://karimbel.github.io/scanX-showcase/downloads/scanx-v1.1.3.apk) (`.apk` file).
+1. On your Android phone, download the [latest version](https://github.com/karimbel/scanX-showcase/releases/latest/download/scanx.apk) (`.apk` file).
 2. Open the file. If Android asks, allow installing apps from this source.
 3. Launch ScanX.
 
