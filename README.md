@@ -23,7 +23,7 @@ ScanX est une application Android pour numériser vos documents papier avec le t
 
 ### Fonctionnalités
 
-- **Détection automatique** des bords, redressement et recadrage, avec le scanner de Google (ML Kit).
+- **Détection automatique** des bords, redressement et recadrage.
 - **Multi-pages** : ajout, réorganisation, rotation, recadrage et suppression des pages.
 - **PDF ou JPG** : enregistrement dans le dossier de votre choix, partage par e-mail ou SMS.
 - **Vos documents restent sur votre téléphone** : aucun compte, aucun envoi vers un serveur.
@@ -52,7 +52,7 @@ ScanX is an Android app that digitizes paper documents with your phone, saves th
 
 ### Features
 
-- **Automatic detection** of edges, straightening and cropping, using Google's scanner (ML Kit).
+- **Automatic detection** of edges, straightening and cropping.
 - **Multi-page**: add, reorder, rotate, crop and delete pages.
 - **PDF or JPG**: save to the folder of your choice, share by email or SMS.
 - **Your documents stay on your phone**: no account, nothing sent to a server.
